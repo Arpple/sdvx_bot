@@ -5,7 +5,6 @@ defmodule DiscordBot.SearchCommand do
   @search_pattern ~r/(?<level>\d+)([ ]+(?<keyword>.*))?/
 
   def command(msg, raw_args) do
-    IO.inspect(raw_args)
     raw_args
     |> parse_args()
     |> search()

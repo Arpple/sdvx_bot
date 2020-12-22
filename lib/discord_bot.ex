@@ -6,7 +6,6 @@ defmodule DiscordBot do
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
-    IO.inspect("test")
     case msg.content do
       "!lv" <> args ->
         DiscordBot.SearchCommand.command(msg, args)
