@@ -17,7 +17,7 @@ defmodule DiscordBot.SearchCommand do
     %{value: level} = Enum.find(options, fn option -> option.name == "level" end)
     %{value: keyword} = Enum.find(options, %{value: ""}, fn option -> option.name == "keyword" end)
     search(%{ "keyword" => keyword, "level" => level })
-    |> create_embed("#{level}")
+    |> create_embed("#{level} #{keyword}")
     |> send_response(interaction)
   end
 
