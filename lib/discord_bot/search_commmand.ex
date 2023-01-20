@@ -1,17 +1,27 @@
 defmodule DiscordBot.SearchCommand do
   alias Nostrum.Api
   alias Nostrum.Struct.Embed
+  alias Nostrum.Struct.Interaction
 
   @search_pattern ~r/(?<level>\d+)([ ]+(?<keyword>.*))?/
 
-  def command(msg, raw_args) do
+  def command_message(msg, raw_args) do
     raw_args
-    |> parse_args()
+    |> parse_string_args()
     |> search()
-    |> message(msg.channel_id, raw_args)
+    |> create_embed(raw_args)
+    |> send_message(msg.channel_id)
   end
 
-  defp parse_args(args) do
+  def command_slash(%Interaction{data: %{options: options}} = interaction) do
+    %{value: level} = Enum.find(options, fn option -> option.name == "level" end)
+    %{value: keyword} = Enum.find(options, %{value: ""}, fn option -> option.name == "keyword" end)
+    search(%{ "keyword" => keyword, "level" => level })
+    |> create_embed("#{level}")
+    |> send_response(interaction)
+  end
+
+  defp parse_string_args(args) do
     Regex.named_captures(@search_pattern, String.trim(args))
   end
 
@@ -19,22 +29,17 @@ defmodule DiscordBot.SearchCommand do
     SdvxInWeb.search(level, keyword)
   end
 
-  defp message(tracks, channel, _) when length(tracks) == 0 do
+  defp send_message(nil, channel) do
     Api.create_message(channel, "Not Found :jarnsweat:")
   end
 
-  defp message(tracks, channel, args) when length(tracks) > 15 do
-    create_embed(Enum.slice(tracks, 0..14), args)
-    |> Embed.put_field("and more", "...")
-    |> send_embed(channel)
+  defp send_message(embed, channel) do
+    Api.create_message(channel, embed: embed)
   end
 
-  defp message(tracks, channel, args) do
-    create_embed(tracks, args)
-    |> send_embed(channel)
-  end
+  defp create_embed(tracks, _args) when length(tracks) == 0, do: nil
 
-  defp create_embed(tracks, args) do
+  defp create_embed(tracks, args) when length(tracks) <= 15 do
     fields = tracks
     |> Enum.map(&track_string/1)
     |> Enum.join("\n")
@@ -44,8 +49,20 @@ defmodule DiscordBot.SearchCommand do
     |> Embed.put_field("Result", fields)
   end
 
-  defp send_embed(embed, channel) do
-    Api.create_message(channel, embed: embed)
+  defp create_embed(tracks, args) do
+    create_embed(Enum.slice(tracks, 0..14), args)
+    |> Embed.put_field("and more", "...")
+  end
+
+  defp send_response(embed, interaction) do
+    response = %{
+      type: 4, # CHANNEL_MESSAGE_WITH_SOURCE
+      data: %{
+        embed: embed,
+      },
+    }
+
+    Api.create_interaction_response(interaction, response)
   end
 
   defp track_string(%{ name: name, link: link }) do
