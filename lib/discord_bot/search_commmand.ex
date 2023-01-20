@@ -16,7 +16,7 @@ defmodule DiscordBot.SearchCommand do
   end
 
   defp search(%{ "keyword" => keyword, "level" => level }) do
-    SdvxBot.search(level, keyword)
+    SdvxInWeb.search(level, keyword)
   end
 
   defp message(tracks, channel, _) when length(tracks) == 0 do

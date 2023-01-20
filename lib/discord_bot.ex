@@ -1,21 +1,12 @@
 defmodule DiscordBot do
-  use Nostrum.Consumer
+  use Application
 
-  def start_link() do
-    Consumer.start_link(__MODULE__)
-  end
+  def start(_type, _args) do
+    children = [
+      DiscordBot.Consumer
+    ]
 
-  def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
-    case msg.content do
-      "!lv" <> args ->
-        DiscordBot.SearchCommand.command(msg, args)
-
-      _ ->
-        :ignore
-    end
-  end
-
-  def handle_event(_event) do
-    :noop
+    opts = [strategy: :one_for_one, name: DiscordBot.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end

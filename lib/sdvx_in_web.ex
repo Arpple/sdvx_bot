@@ -1,8 +1,8 @@
-defmodule SdvxBot do
-  alias SdvxBot.InWeb
+defmodule SdvxInWeb do
+  alias SdvxInWeb.TrackSearch
 
   def search(level, "") do
-    InWeb.tracks(level)
+    TrackSearch.search(level)
   end
 
   def search(level, keyword) do

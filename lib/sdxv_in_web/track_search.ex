@@ -1,5 +1,5 @@
-defmodule SdvxBot.InWeb do
-  def tracks(level) do
+defmodule SdvxInWeb.TrackSearch do
+  def search(level) do
     level
     |> url()
     |> get_html_body()
@@ -26,7 +26,6 @@ defmodule SdvxBot.InWeb do
   defp convert_to_track(line) do
     Regex.named_captures(@regex, line)
   end
-
 
   defp get_track(nil), do: nil
 
