@@ -33,7 +33,7 @@ defmodule DiscordBot.Consumer do
   }
 
   defp create_guild_commands(guild_id) do
-    Api.create_guild_application_command(guild_id, @command)
+    Api.bulk_overwrite_guild_application_commands(guild_id, @command)
   end
 
   def handle_event({:INTERACTION_CREATE, %Interaction{data: %{name: "search"}} = interaction, _ws_state}) do
